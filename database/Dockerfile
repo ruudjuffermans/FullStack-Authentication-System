@@ -1,0 +1,19 @@
+ARG POSTGRES_VERSION=15
+FROM postgres:${POSTGRES_VERSION}
+
+ARG POSTGRES_DB
+ENV POSTGRES_DB=${POSTGRES_DB}
+
+ARG POSTGRES_PASSWORD
+ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+ARG POSTGRES_USER
+ENV POSTGRES_USER=${POSTGRES_USER}
+
+ARG PORT
+ENV PORT=${PORT}
+EXPOSE ${PORT}
+
+# Copy initialization scripts
+COPY ./sql/* /docker-entrypoint-initdb.d/
+COPY --chown=root:root ./entrypoint.sh /usr/local/bin/

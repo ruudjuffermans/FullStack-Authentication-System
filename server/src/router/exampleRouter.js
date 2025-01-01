@@ -1,5 +1,5 @@
 const { exampleController } = require("../controllers");
-const { asyncHandler } = require("../utils/asyncHandler");
+const asyncHandler = require('../utils/asyncHandler');
 
 function exampleRouter(app) {
     app.post(

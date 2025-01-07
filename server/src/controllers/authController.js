@@ -53,48 +53,6 @@ const login = async (req, res) => {
     }
 };
 
-const enrollAdminUser = async (req, res) => {
-    const { email, password, firstname, lastname } = req.body;
-
-    try {
-        // Validate input
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
-        }
-        if (!firstname || !lastname) {
-            return res.status(400).json({ error: 'Firstname and lastname are required' });
-        }
-
-        // Check if the user already exists
-        const existingUser = await authHandler.findUserByEmail(email);
-        if (existingUser) {
-            return res.status(400).json({ error: 'User already exists' });
-        }
-
-
-        const hashedPassword = await hashPassword(password);
-
-        // Create the new user
-        const newUser = await authHandler.createAdminUser(email, hashedPassword, firstname, lastname);
-
-        // Respond with success
-        res.status(200).json({
-            message: 'Adminuser registered successfully',
-            user: {
-                id: newUser.id,
-                email: newUser.email,
-                firstname: newUser.firstname,
-                lastname: newUser.lastname
-            }
-        });
-    } catch (error) {
-        console.error('Error during registration:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-};
-
-
-
 const register = async (req, res) => {
     const { email, password, firstname, lastname } = req.body;
 
@@ -214,6 +172,5 @@ module.exports = {
     register,
     forgotPassword,
     activateAccount,
-    refreshToken,
-    enrollAdminUser
+    refreshToken
 };

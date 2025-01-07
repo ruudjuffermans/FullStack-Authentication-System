@@ -23,6 +23,16 @@ services:
       - postgres-storage:/var/lib/postgressql/data
     networks:
       - networkA
+  mailslurper:
+    image: marcopas/docker-mailslurper
+    container_name: mailslurper
+    ports:
+      - "2500:2500"
+      - "8182:8080"
+      - "8085:8085"
+    restart: unless-stopped  # Optional: Ensures the container restarts automatically unless manually stopped
+    stdin_open: true   # Equivalent to -i in Docker run
+    tty: true          # Equivalent to -t in Docker run
 volumes:
   postgres-storage:
 

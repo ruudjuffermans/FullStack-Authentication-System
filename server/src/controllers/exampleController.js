@@ -11,6 +11,9 @@ const create = async (req, res) => {
     console.error("Error creating field:", error);
     res.status(500).json({ error: "An error occurred while creating the field." });
   }
+
+  console.log(response)
+  res.status(201).json();
 };
 
 const update = async (req, res) => {

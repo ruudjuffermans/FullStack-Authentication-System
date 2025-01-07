@@ -13,7 +13,7 @@ function exampleRouter(app) {
     );
 
     app.put(
-        "/api/example/:idd",
+        "/api/example/:id",
         asyncHandler(exampleController.update)
     );
 
@@ -23,7 +23,7 @@ function exampleRouter(app) {
     );
 
     app.delete(
-        "/api/example/:idd",
+        "/api/example/:id",
         asyncHandler(exampleController.remove)
     );
 

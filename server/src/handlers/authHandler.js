@@ -11,6 +11,7 @@ async function findUserByEmail(email) {
 
 // Create a new user
 async function createUser(email, passwordHash, firstname, lastname) {
+    
     const result = await pool.query(
         `INSERT INTO users (email, password_hash, firstname, lastname)
          VALUES ($1, $2, $3, $4) 

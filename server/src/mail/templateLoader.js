@@ -1,0 +1,38 @@
+import fs from "fs/promises";
+import path from "path";
+import h from "handlebars";
+
+async function getTemplateFile(data, fileName) {
+  const file = path.resolve("src", "mail", "templates", fileName);
+  const content = await fs.readFile(file, "utf8");
+  const template = h.compile(content);
+  const result = template(data);
+  return result;
+}
+
+export async function getTemplate(
+  email,
+  name,
+  code,
+  clientUrl,
+  serverUrl,
+  template
+) {
+  return getTemplateFile(
+    { email, name, code, clientUrl, serverUrl },
+    template
+  );
+}
+
+export async function getPasswordResetTemplate(
+  email,
+  name,
+  code,
+  clientUrl,
+  serverUrl
+) {
+  return getTemplateFile(
+    { email, name, code, clientUrl, serverUrl },
+    "reset-password.html"
+  );
+}

@@ -1,8 +1,9 @@
 const express = require('express')
 const cors = require('cors');
+const config = require("./config/index.js");
 const router = require('./router');
 
-const PORT = process.env.PORT || 3001;
+console.log(config)
 
 const app = express()
 
@@ -14,11 +15,10 @@ app.use(express.json())
 
 router(app);
 
-app.get('/health', (req, res) => {
-    console.log("health")
+app.get('/health', async (req, res) => {
     res.json({"message": "healthy"})
 })
 
-app.listen(PORT, () => {
-    console.log(`Server is listenissssng on port ${PORT}`)
+app.listen(config.SERVER_PORT, () => {
+    console.log(`Server is listening on port ${config.SERVER_PORT}`)
 })

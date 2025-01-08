@@ -23,6 +23,15 @@ services:
       - postgres-storage:/var/lib/postgressql/data
     networks:
       - networkA
+  mailhog:
+    image: mailhog/mailhog
+    container_name: my-mailhog
+    ports:
+      - "8025:8025"  # Web interface
+      - "1025:1025"  # SMTP server
+    restart: always
+    networks:
+      - networkA
 volumes:
   postgres-storage:
 

@@ -5,7 +5,10 @@
     "main": "index.js",
     "scripts": {
         "start": "node src/server.js",
-        "dev": "nodemon src/server.js"
+        "dev": "nodemon src/server.js",
+        "create-admin": "node src/scripts/create-admin.js",
+        "send-reset-mail": "node src/scripts/reset-password-mail.js",
+        "send-activate-mail": "node src/scripts/activate-account-mail.js"
     },
     "author": "",
     "license": "ISC",
@@ -18,5 +21,8 @@
         "nodemailer": "^6.9.16",
         "nodemon": "^3.1.7",
         "pg": "^8.13.0"
+    },
+    "devDependencies": {
+        "enquirer": "^2.4.1"
     }
 }

@@ -1,42 +1,51 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/auth";
+import Card from "../../components/Card"
+import Button from "../../components/Button";
 
 const AppLayout = ({ routes }) => {
   const { isLoggedIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(true);
+  const [authBarrier, setAuthBarrier] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false); // New state to track initialization
 
-  // useEffect(() => {
-  //   const currentRoute = routes.find((route) => route.path === location.pathname);
+  useEffect(() => {
+    const currentRoute = routes.find((route) => route.pathname === location.pathname);
 
-  //   if (currentRoute?.requiresAuth && !isLoggedIn) {
-  //     setShowModal(true);
-  //   } else {
-  //     setShowModal(false);
-  //   }
-  // }, [location, routes, isLoggedIn]);
+    console.log(currentRoute);
+
+    if (currentRoute?.requiresAuth && !isLoggedIn) {
+      setAuthBarrier(true);
+    } else {
+      setAuthBarrier(false);
+    }
+
+    setIsInitialized(true); // Mark as initialized after logic completes
+  }, [routes, location.pathname, isLoggedIn]);
 
   const handleRedirectToLogin = () => {
-    setShowModal(false);
+    setAuthBarrier(false);
     navigate("/login", { state: { from: location.pathname } });
   };
 
-  return (
-    <>
-      <Outlet />
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Authentication Required</h2>
-            <p>You need to log in to access this page.</p>
-            <button onClick={handleRedirectToLogin}>Go to Login</button>
-            <button onClick={() => setShowModal(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-    </>
+  if (!isInitialized) {
+    // Show a loader or nothing while initialization completes
+    return <div>Loading...</div>;
+  }
+
+  return authBarrier ? (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <Card>
+        <h2>Authentication Required</h2>
+        <p>You need to log in to access this page.</p>
+        <br/>
+        <Button onClick={() => handleRedirectToLogin()}>Go to Login</Button>
+    </Card>
+    </div>
+  ) : (
+    <Outlet />
   );
 };
 

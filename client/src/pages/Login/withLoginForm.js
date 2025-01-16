@@ -47,16 +47,30 @@ const validationSchema = Yup.object({
 });
 
 const withForm = withFormik({
-  mapPropsToValues: () => ({ email: "", password: "" }),
+  mapPropsToValues: () => ({ email: "", password: "", response: undefined, status: undefined, message: "" }),
   validationSchema,
   validate: false,
   validateOnChange: true,
-  handleSubmit: (values, rest) => {
-    api.login(values).then((response) => {
-      console.log(response);
-    }).catch((error) => {
+  handleSubmit: async (values, { setSubmitting, setFieldError, setErrors, resetForm, setValues}) => {
+    try {
+      const response = await api.login(values);
+      console.log(response.data);
+      setValues({
+        ...values,
+        status: response.data.status,
+        response: response.data.payload,
+        message: response.data.message,
+      });
+
+    } catch (error) {
       console.error(error);
-    }).finally(() => rest.setSubmitting(false));
+
+      if (error.response && error.response.data) {
+        console.error("!!! api error !!!")
+      }
+    } finally {
+      setSubmitting(false);
+    }
   },
 });
 

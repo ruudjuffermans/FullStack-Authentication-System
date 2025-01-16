@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Icon from "../../components/Icon";
 
 export const NotificationWrapper = ({ children }) => {
@@ -12,28 +12,30 @@ export const NotificationWrapper = ({ children }) => {
 const Notification = ({ dispatch, id, status, message }) => {
   const [exit, setExit] = useState(false);
   const [width, setWidth] = useState(0);
-  const [intervalID, setIntervalID] = useState(null);
+  const intervalRef = useRef(null); // Use ref for interval ID
 
-  const handleStartTimer = () => {
-    const i = setInterval(() => {
+  const handleStartTimer = useCallback(() => {
+    if (intervalRef.current) return; // Prevent multiple intervals
+    intervalRef.current = setInterval(() => {
       setWidth((prev) => {
         if (prev < 100) {
           return prev + 0.5;
         }
-
-        clearInterval(i);
+        clearInterval(intervalRef.current);
+        intervalRef.current = null; // Clear interval ref
         return prev;
       });
     }, 20);
+  }, []);
 
-    setIntervalID(i);
-  };
+  const handlePauseTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
 
-  const handlePauseTimer = () => {
-    clearInterval(intervalID);
-  };
-
-  const handleCloseNotification = () => {
+  const handleCloseNotification = useCallback(() => {
     handlePauseTimer();
     setExit(true);
     setTimeout(() => {
@@ -42,23 +44,26 @@ const Notification = ({ dispatch, id, status, message }) => {
         id: id,
       });
     }, 400);
-  };
+  }, [dispatch, id, handlePauseTimer]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (width === 100) {
       handleCloseNotification();
     }
-  }, [width]);
+  }, [width, handleCloseNotification]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     handleStartTimer();
-  }, []);
+    return () => {
+      handlePauseTimer(); // Clear interval on unmount
+    };
+  }, [handleStartTimer, handlePauseTimer]);
 
   return (
     <div
       onMouseEnter={handlePauseTimer}
       onMouseLeave={handleStartTimer}
-      className={`relative w-[350px] h-[70px] mb-4 rounded-md p-1 shadow-md opacity-95 animate-slide-in ${
+      className={`relative w-[350px] h-auto p-2 mb-2 rounded-lg shadow-md opacity-95 animate-slide-in ${
         exit ? "animate-slide-out" : ""
       } ${{
         info: "bg-blue-500",
@@ -67,20 +72,33 @@ const Notification = ({ dispatch, id, status, message }) => {
         error: "bg-red-500",
       }[status]}`}
     >
+      {/* Close Button */}
       <span
-        onClick={() => handleCloseNotification()}
-        className="absolute top-0 right-0 w-5 h-5 m-1 rounded-full bg-black/20 text-white/70 cursor-pointer flex items-center justify-center text-xl font-bold"
+        onClick={handleCloseNotification}
+        className="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/20 text-white/70 cursor-pointer flex items-center justify-center text-xl"
       >
-        <Icon size={"20px"} name={"close"} />
+        <Icon size={"14px"} name={"close"} />
       </span>
-      <span className="w-11 h-11 m-1 rounded-full bg-white/30 text-black/30 flex items-center justify-center">
-        <Icon size={"44px"} name={"check_circle"} />
-      </span>
-      <div className="flex items-center justify-center h-full px-2">
-        <span className="text-white font-semibold text-lg text-shadow">
-          {message}
+
+      {/* Message Content */}
+      <div className="flex items-start">
+        {/* Status Icon */}
+        <span className="w-8 h-8 flex-shrink-0 rounded-full bg-white/30 text-white/90 flex items-center justify-center mr-3">
+          <Icon size={"24px"} name={"check_circle"} />
         </span>
-        <div className="h-1 bg-gray-300" style={{ width: `${width}%` }}></div>
+
+        {/* Text */}
+        <div className="flex-1">
+          <p className="text-white text-sm font-semibold">{message}</p>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="h-1 bg-gray-300 mt-3 rounded overflow-hidden">
+        <div
+          className="h-full bg-white"
+          style={{ width: `${width}%`, transition: "width 0.1s linear" }}
+        ></div>
       </div>
     </div>
   );

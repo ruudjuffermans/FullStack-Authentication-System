@@ -1,24 +1,37 @@
+version: '3.8'
 services:
-  # server:
-  #   build:
-  #     context: ./server
-  #   env_file:
-  #     - ./server/.env
-  #   ports:
-  #     - "3001:3001"
-  #   depends_on:
-  #     - postgres
-  #   command: sh -c "sleep 4 && npm start"
-  #   networks:
-  #     - networkA
-  postgres:
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/src:/usr/src/app/src
+      - ./client/public:/usr/src/app/public
+      - ./client/package.json:/usr/src/app/package.json
+      - /usr/src/app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - networkA
+  server:
+    build:
+      context: ./server
+    env_file:
+      - ./server/.env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - database
+    command: sh -c "sleep 4 && npm start"
+    networks:
+      - networkA
+  database:
+    container_name: database
     build:
       context: ./database
     env_file:
       - ./database/.env
     restart: always
-    ports:
-      - 5432:5432
     volumes:
       - postgres-storage:/var/lib/postgressql/data
     networks:
